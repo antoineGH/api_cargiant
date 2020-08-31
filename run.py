@@ -1,12 +1,15 @@
-from flask import Flask, jsonify, abort, make_response, request, render_template
+from flask import Flask, jsonify, abort, make_response, request, render_template, url_for, redirect
+import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, Float
+from flask_cors import CORS
 
 # APP Configuration
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Models DB
 class Dealership(db.Model):
@@ -15,9 +18,10 @@ class Dealership(db.Model):
     price = Column(Float, nullable=False)
     color = Column(String(250), nullable=False)
     matriculation = Column(String(250), nullable=False)
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
 
     def __repr__(self):
-        return "ID: {}, brand: {}, price: {}, color: {}, matriculation: {}".format(self.id, self.brand, self.price, self.color, self.matriculation)
+        return "ID: {}, brand: {}, price: {}, color: {}, matriculation: {}, image: {}".format(self.id, self.brand, self.price, self.color, self.matriculation, self.image_file)
 
     @property
     def serialize(self):
@@ -26,13 +30,18 @@ class Dealership(db.Model):
             'brand': self.brand,
             'price': self.price,
             'color': self.color,
-            'matriculation': self.matriculation
+            'matriculation': self.matriculation,
+            'image_file': self.image_file
         }
 
 # Functions
 def get_cars():
     cars = Dealership.query.all()
     return jsonify(cars=[car.serialize for car in cars])
+
+def get_cars_last():
+    cars_last = Dealership.query.order_by(Dealership.id.desc()).limit(3)
+    return jsonify(cars=[car.serialize for car in cars_last])
 
 def post_car(brand, price, color, matriculation):
     car = Dealership(brand=brand, price=price, color=color, matriculation=matriculation)
@@ -43,6 +52,11 @@ def post_car(brand, price, color, matriculation):
 def get_car(id):
     car = Dealership.query.get_or_404(id)
     return jsonify(car=car.serialize)
+
+def get_image_url(id):
+    car = Dealership.query.get_or_404(id)
+    image_url = url_for('static', filename='car_pics/' + car.image_file)
+    return image_url
 
 def update_car(id, brand, price, color, matriculation):
     car = Dealership.query.get_or_404(id)
@@ -81,6 +95,10 @@ def carsFunction():
         matriculation = request.json['matriculation']
         return post_car(brand, price, color, matriculation)
 
+@app.route('/api/cars/last', methods=['GET'])
+def carsLastFunction():
+    return get_cars_last()
+
 @app.route('/api/car/<id>', methods=['GET', 'PUT', 'DELETE'])
 def carFunction(id):
     if not id:
@@ -98,6 +116,16 @@ def carFunction(id):
 
     elif request.method == 'DELETE':
         return delete_car(id)
+
+@app.route('/api/car/<id>/image', methods=['GET'])
+def carImage(id):
+    if not id:
+        abort(404)
+
+    if request.method == 'GET':
+        image_url = get_image_url(id)
+        return redirect(image_url)
+
 
 @app.errorhandler(404)
 def not_found(error):
