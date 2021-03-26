@@ -1,33 +1,51 @@
-## Null byte Scrapper
+## Car API
 
 ## Table of contents
 
 -   [General info](#general-info)
--   [Screenshots](#screenshots)
+-   [API Endpoints](#api-endpoints)
 -   [Technologies](#technologies)
 -   [Setup](#setup)
 
 ## General info
 
-Those projects aims to practice website data scraping using **Selenium drivers** and **Beautifulsoup4**.
+Car Retailer is a REST API built with Flask & SQLAlchemy to operate CRUD operation on the database. The different routes are described below in the API Endpoint section.
 
-Browse all articles on the main page to retrieve article information and save it to JSON.
+## API Endpoints
 
-Parsed data would be stored in databases in the following order:
+### GET
 
--   id
--   link
--   title
--   summary
--   image
--   picture_fn
--   article_content
+Return JSON with cars.
 
-Selenium WebDriver helps to automates browser and fetch information with beautifulsoup4
+> http://127.0.0.1:5000/api/cars
 
-## Screenshots
+> http://127.0.0.1:5000/api/car/1
 
-![BS4 Screenshot](https://github.com/antoineratat/null_byte_parser/blob/master/screenshots/1.PNG?raw=true)
+### POST
+
+Create a car from JSON Content-Type: application/json
+
+```
+Body: {"brand": "brand", "color": "color", "matriculation": "matriculation", "price": "price"}
+```
+
+> http://127.0.0.1:5000/api/cars
+
+### PUT
+
+Update a car from JSON Content-Type: application/json
+
+```
+Body: {"brand": "brand", "color": "color", "matriculation": "matriculation", "price": "price"}
+```
+
+> http://127.0.0.1:5000/api/car/1
+
+### DELETE
+
+Delete a car from ID
+
+> http://127.0.0.1:5000/api/car/1
 
 ## Technologies
 
@@ -35,36 +53,28 @@ Project is created with:
 
 -   Python v3.8.5
 -   astroid v2.4.2
--   beautifulsoup4 v4.9.1
--   certifi v2020.6.20
--   chardet v3.0.4
--   colorama v0.4.3
--   idna v2.10
--   isort v4.3.21
+-   click v7.1.2
+-   colorama v0.4.4
+-   Flask v1.1.2
+-   isort v5.6.4
+-   itsdangerous v1.1.0
+-   Jinja2 v2.11.2
 -   lazy-object-proxy v1.4.3
--   lxml v4.5.2
+-   MarkupSafe v1.1.1
 -   mccabe v0.6.1
--   pylint v2.5.3
--   requests v2.24.0
--   selenium v3.141.0
+-   pylint v2.6.0
 -   six v1.15.0
--   soupsieve v2.0.1
--   SQLAlchemy v1.3.18
--   toml v0.10.1
--   urllib3 v1.25.10
+-   toml v0.10.2
+-   Werkzeug v1.0.1
 -   wrapt v1.12.1
 
 ## Setup
 
-Install Chrome Driver for your OS : https://sites.google.com/a/chromium.org/chromedriver/home
-
-Put the driver exe in null_byte_parser folder.
-
 ```
-$ git clone https://github.com/antoineratat/null_byte_parser.git
+$ git clone https://github.com/antoineratat/car_API.git
 $ py -3 -m venv venv
 $ venv\Script\Activate
-$ cd null_byte_parser
+$ cd car_api
 $ pip install -r requirements.txt
 $ python run.py
 ```
